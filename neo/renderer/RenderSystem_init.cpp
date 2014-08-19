@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "tr_local.h"
+#include "../idlib/Lib.h"
 
 // RB begin
 #if defined(_WIN32)
@@ -357,7 +358,7 @@ static void R_CheckPortableExtensions()
 	
 	// GL_ARB_texture_compression + GL_S3_s3tc
 	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-	glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 && GLEW_EXT_texture_compression_s3tc != 0;
+	glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 || GLEW_EXT_texture_compression_s3tc != 0;
 	
 	// GL_EXT_texture_filter_anisotropic
 	glConfig.anisotropicFilterAvailable = GLEW_EXT_texture_filter_anisotropic != 0;
