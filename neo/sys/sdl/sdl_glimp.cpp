@@ -308,9 +308,9 @@ bool GLimp_Init( glimpParms_t parms )
 		return false;
 	}
 	
-#ifdef __APPLE__
+//#ifdef __APPLE__ // why only apple
 	glewExperimental = GL_TRUE;
-#endif
+//#endif
 	
 	GLenum glewResult = glewInit();
 	if( GLEW_OK != glewResult )
