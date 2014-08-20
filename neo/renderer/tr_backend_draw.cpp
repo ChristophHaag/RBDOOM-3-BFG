@@ -225,28 +225,28 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	if( backEnd.glState.currentIndexBuffer != ( GLintptrARB )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
-		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLintptrARB )indexBuffer->GetAPIObject() );
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLintptrARB )indexBuffer->GetAPIObject() );
 		backEnd.glState.currentIndexBuffer = ( GLintptrARB )indexBuffer->GetAPIObject();
 	}
 	
 	if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_VERT ) || ( backEnd.glState.currentVertexBuffer != ( GLintptrARB )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 	{
-		glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
+		glBindBuffer( GL_ARRAY_BUFFER, ( GLintptrARB )vertexBuffer->GetAPIObject() );
 		backEnd.glState.currentVertexBuffer = ( GLintptrARB )vertexBuffer->GetAPIObject();
 		
-		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
-		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
-		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR );
-		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR2 );
-		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
-		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR2 );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
 		
-		glVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( DRAWVERT_XYZ_OFFSET ) );
-		glVertexAttribPointerARB( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_NORMAL_OFFSET ) );
-		glVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR_OFFSET ) );
-		glVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR2_OFFSET ) );
-		glVertexAttribPointerARB( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
-		glVertexAttribPointerARB( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( DRAWVERT_XYZ_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_NORMAL_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR2_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
 		
 		backEnd.glState.vertexLayout = LAYOUT_DRAW_VERT;
 	}
@@ -1947,7 +1947,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		// RB: 64 bit fixes, changed GLuint to GLintptrARB
 		if( backEnd.glState.currentIndexBuffer != ( GLintptrARB )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 		{
-			glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLintptrARB )indexBuffer->GetAPIObject() );
+			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLintptrARB )indexBuffer->GetAPIObject() );
 			backEnd.glState.currentIndexBuffer = ( GLintptrARB )indexBuffer->GetAPIObject();
 		}
 		
@@ -1968,7 +1968,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			
 			if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( backEnd.glState.currentVertexBuffer != ( GLintptrARB )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
-				glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
+				glBindBuffer( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
 				backEnd.glState.currentVertexBuffer = ( GLintptrARB )vertexBuffer->GetAPIObject();
 				
 				glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
@@ -1991,7 +1991,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		
 			if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT ) || ( backEnd.glState.currentVertexBuffer != ( GLintptrARB )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
-				glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
+				glBindBuffer( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
 				backEnd.glState.currentVertexBuffer = ( GLintptrARB )vertexBuffer->GetAPIObject();
 				
 				glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );

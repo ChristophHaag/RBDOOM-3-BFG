@@ -828,7 +828,7 @@ static void RB_ShowSilhouette()
 				}
 				
 				// RB: 64 bit fixes, changed GLuint to GLintptrARB
-				glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer.GetAPIObject() );
+				glBindBuffer( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer.GetAPIObject() );
 				GLintptrARB vertOffset = vertexBuffer.GetOffset();
 				// RB end
 				
