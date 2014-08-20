@@ -348,12 +348,14 @@ static void R_CheckPortableExtensions()
 		glConfig.vendor = VENDOR_INTEL;
 	}
 	
+	/* Doesn't need a ES 3 special case in up to date mesa
 	// RB: Mesa support
 	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 )
 	{
 		glConfig.driverType = GLDRV_OPENGL_MESA;
 	}
 	// RB end
+	*/
 	
 	// GL_ARB_multitexture
 	glConfig.multitextureAvailable = 1; //GLEW_ARB_multitexture != 0; //with core context this is mandatory I think TODO: Only for core context
