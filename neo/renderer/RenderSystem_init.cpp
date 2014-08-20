@@ -31,7 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "tr_local.h"
-#include "../idlib/Lib.h"
+static GLuint _glewStrCLen (const GLubyte* s, GLubyte c)
+{
+  GLuint i=0;
+  if (s == NULL) return 0;
+  while (s[i] != '\0' && s[i] != c) i++;
+  return (s[i] == '\0' || s[i] == c) ? i : 0;
+}
 
 // RB begin
 #if defined(_WIN32)
@@ -350,7 +356,7 @@ static void R_CheckPortableExtensions()
 	// RB end
 	
 	// GL_ARB_multitexture
-	glConfig.multitextureAvailable = GLEW_ARB_multitexture != 0;
+	glConfig.multitextureAvailable = 1; //GLEW_ARB_multitexture != 0; //with core context this is mandatory I think TODO: Only for core context
 	
 	// GL_EXT_direct_state_access
 	glConfig.directStateAccess = GLEW_EXT_direct_state_access != 0;
@@ -358,7 +364,7 @@ static void R_CheckPortableExtensions()
 	
 	// GL_ARB_texture_compression + GL_S3_s3tc
 	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-	glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 || GLEW_EXT_texture_compression_s3tc != 0;
+	glConfig.textureCompressionAvailable = 1; // GLEW_ARB_texture_compression != 0 || GLEW_EXT_texture_compression_s3tc != 0; //with core context this is mandatory I think TODO: Only for core context
 	
 	// GL_EXT_texture_filter_anisotropic
 	glConfig.anisotropicFilterAvailable = GLEW_EXT_texture_filter_anisotropic != 0;
@@ -394,7 +400,7 @@ static void R_CheckPortableExtensions()
 	r_useSRGB.SetModified();		// the CheckCvars() next frame will enable / disable it
 	
 	// GL_ARB_vertex_buffer_object
-	glConfig.vertexBufferObjectAvailable = GLEW_ARB_vertex_buffer_object != 0;
+	glConfig.vertexBufferObjectAvailable = 1; //GLEW_ARB_vertex_buffer_object != 0; //with core context this is mandatory I think TODO: Only for core context
 	
 	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
 	glConfig.mapBufferRangeAvailable = GLEW_ARB_map_buffer_range != 0;
@@ -418,6 +424,7 @@ static void R_CheckPortableExtensions()
 	
 	// GL_ARB_uniform_buffer_object
 	glConfig.uniformBufferAvailable = GLEW_ARB_uniform_buffer_object != 0;
+	
 	if( glConfig.uniformBufferAvailable )
 	{
 		glGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, ( GLint* )&glConfig.uniformBufferOffsetAlignment );
@@ -556,7 +563,7 @@ static void R_CheckPortableExtensions()
 	{
 		idLib::Error( "GL_ATI_separate_stencil not available" );
 	}
-	
+        
 	// generate one global Vertex Array Object (VAO)
 	glGenVertexArrays( 1, &glConfig.global_vao );
 	glBindVertexArray( glConfig.global_vao );
@@ -755,29 +762,37 @@ void R_InitOpenGL()
 	glConfig.renderer_string = ( const char* )glGetString( GL_RENDERER );
 	glConfig.version_string = ( const char* )glGetString( GL_VERSION );
 	glConfig.shading_language_string = ( const char* )glGetString( GL_SHADING_LANGUAGE_VERSION );
-	glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS );
-	
-	if( glConfig.extensions_string == NULL )
-	{
-		// As of OpenGL 3.2, glGetStringi is required to obtain the available extensions
-		//glGetStringi = ( PFNGLGETSTRINGIPROC )GLimp_ExtensionPointer( "glGetStringi" );
-		
-		// Build the extensions string
-		GLint numExtensions;
-		glGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
-		extensions_string.Clear();
-		for( int i = 0; i < numExtensions; i++ )
-		{
-			extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
-			// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
-			if( i < numExtensions - 1 )
-			{
-				extensions_string.Append( ' ' );
-			}
-		}
-		glConfig.extensions_string = extensions_string.c_str();
-	}
-	
+        
+        // copy from glew patch
+        const GLubyte* glversion = glGetString(GL_VERSION);
+        GLint major, minor, dot;
+        dot = _glewStrCLen(glversion, '.');
+        major = glversion[dot-1]-'0';
+        minor = glversion[dot+1]-'0';
+        if (major < 3) {
+            glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS );
+        } else {
+                // As of OpenGL 3.2, glGetStringi is required to obtain the available extensions
+                //glGetStringi = ( PFNGLGETSTRINGIPROC )GLimp_ExtensionPointer( "glGetStringi" );
+                
+                // Build the extensions string
+                GLint numExtensions;
+                glGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
+                extensions_string.Clear();
+                for( int i = 0; i < numExtensions; i++ )
+                {
+                        extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
+                        // the now deprecated glGetString method usaed to create a single string with each extension separated by a space
+                        if( i < numExtensions - 1 )
+                        {
+                                extensions_string.Append( ' ' );
+                        }
+                }
+                glConfig.extensions_string = extensions_string.c_str();
+        }
+        common->Printf("Extension String:\n");
+        common->Printf("\"%s\"\n", glConfig.extensions_string);
+       
 	
 	float glVersion = atof( glConfig.version_string );
 	float glslVersion = atof( glConfig.shading_language_string );
@@ -785,6 +800,7 @@ void R_InitOpenGL()
 	idLib::Printf( "OpenGL Vendor   : %s\n", glConfig.vendor_string );
 	idLib::Printf( "OpenGL Renderer : %s\n", glConfig.renderer_string );
 	idLib::Printf( "OpenGL GLSL     : %3.1f\n", glslVersion );
+        idLib::Printf( "OpenGL Driver Type     : %3.1d\n", glConfig.driverType );
 	
 	// OpenGL driver constants
 	GLint temp;
