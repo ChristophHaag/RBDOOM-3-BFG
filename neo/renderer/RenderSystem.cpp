@@ -130,11 +130,11 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 		{
 			if( tr.timerQueryId == 0 )
 			{
-				glGenQueriesARB( 1, & tr.timerQueryId );
+				glGenQueries( 1, & tr.timerQueryId );
 			}
-			glBeginQueryARB( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
+			glBeginQuery( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
 			RB_ExecuteBackEndCommands( cmdHead );
-			glEndQueryARB( GL_TIME_ELAPSED_EXT );
+			glEndQuery( GL_TIME_ELAPSED_EXT );
 			glFlush();
 		}
 		else
