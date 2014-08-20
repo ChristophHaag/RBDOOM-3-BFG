@@ -92,6 +92,7 @@ GLimp_Init
 bool GLimp_Init( glimpParms_t parms )
 {
 	common->Printf( "Initializing OpenGL subsystem\n" );
+        common->Printf( "With OpenGL %d\n", r_useOpenGL32.GetInteger() );
 	
 	GLimp_PreInit(); // DG: make sure SDL is initialized
 	
@@ -308,9 +309,10 @@ bool GLimp_Init( glimpParms_t parms )
 		return false;
 	}
 	
-//#ifdef __APPLE__ // why only apple
+
+#ifdef __APPLE__
 	glewExperimental = GL_TRUE;
-//#endif
+#endif
 	
 	GLenum glewResult = glewInit();
 	if( GLEW_OK != glewResult )
