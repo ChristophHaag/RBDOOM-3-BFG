@@ -126,6 +126,7 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	// draw 2D graphics
 	if( !r_skipBackEnd.GetBool() )
 	{
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
 		if( glConfig.timerQueryAvailable )
 		{
 			if( tr.timerQueryId == 0 )
@@ -138,6 +139,7 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 			glFlush();
 		}
 		else
+#endif
 		{
 			RB_ExecuteBackEndCommands( cmdHead );
 		}
@@ -233,7 +235,6 @@ See if some cvars that we watch have changed
 */
 static void R_CheckCvars()
 {
-
 	// gamma stuff
 	if( r_gamma.IsModified() || r_brightness.IsModified() )
 	{
@@ -297,11 +298,11 @@ static void R_CheckCvars()
 	{
 		if( r_multiSamples.GetInteger() > 0 )
 		{
-			glEnable( GL_MULTISAMPLE_ARB );
+			glEnable( GL_MULTISAMPLE );
 		}
 		else
 		{
-			glDisable( GL_MULTISAMPLE_ARB );
+			glDisable( GL_MULTISAMPLE );
 		}
 	}
 	

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 idCVar r_showBuffers( "r_showBuffers", "0", CVAR_INTEGER, "" );
 
 
-//static const GLenum bufferUsage = GL_STATIC_DRAW_ARB;
+//static const GLenum bufferUsage = GL_STATIC_DRAW;
 static const GLenum bufferUsage = GL_DYNAMIC_DRAW;
 
 // RB begin
@@ -253,7 +253,7 @@ void idVertexBuffer::FreeBufferObject()
 	}
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	glDeleteBuffers( 1, ( const unsigned int* ) & bufferObject );
 	// RB end
 	
@@ -320,11 +320,11 @@ void idVertexBuffer::Update( const void* data, int updateSize ) const
 	int numBytes = ( updateSize + 15 ) & ~15;
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// RB end
 	
 	glBindBuffer( GL_ARRAY_BUFFER, bufferObject );
-	glBufferSubData( GL_ARRAY_BUFFER, GetOffset(), ( GLsizeiptrARB )numBytes, data );
+	glBufferSubData( GL_ARRAY_BUFFER, GetOffset(), ( GLsizeiptr )numBytes, data );
 	/*
 		void * buffer = MapBuffer( BM_WRITE );
 		CopyBuffer( (byte *)buffer + GetOffset(), (byte *)data, numBytes );
@@ -345,14 +345,18 @@ void* idVertexBuffer::MapBuffer( bufferMapType_t mapType ) const
 	void* buffer = NULL;
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// RB end
 	
 	glBindBuffer( GL_ARRAY_BUFFER, bufferObject );
+	
 	if( mapType == BM_READ )
 	{
-		//buffer = glMapBufferARB( GL_ARRAY_BUFFER_ARB, GL_READ_ONLY_ARB );
+#if 0 //defined(USE_GLES2)
+		buffer = glMapBufferOES( GL_ARRAY_BUFFER, GL_READ_ONLY );
+#else
 		buffer = glMapBufferRange( GL_ARRAY_BUFFER, 0, GetAllocedSize(), GL_MAP_READ_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT );
+#endif
 		if( buffer != NULL )
 		{
 			buffer = ( byte* )buffer + GetOffset();
@@ -360,8 +364,11 @@ void* idVertexBuffer::MapBuffer( bufferMapType_t mapType ) const
 	}
 	else if( mapType == BM_WRITE )
 	{
-		//buffer = glMapBufferARB( GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB );
+#if 0 //defined(USE_GLES2)
+		buffer = glMapBuffer( GL_ARRAY_BUFFER, GL_WRITE_ONLY );
+#else
 		buffer = glMapBufferRange( GL_ARRAY_BUFFER, 0, GetAllocedSize(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT );
+#endif
 		if( buffer != NULL )
 		{
 			buffer = ( byte* )buffer + GetOffset();
@@ -393,7 +400,7 @@ void idVertexBuffer::UnmapBuffer() const
 	assert( IsMapped() );
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// RB end
 	
 	glBindBuffer( GL_ARRAY_BUFFER, bufferObject );
@@ -538,7 +545,7 @@ void idIndexBuffer::FreeBufferObject()
 	}
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	glDeleteBuffers( 1, ( const unsigned int* )& bufferObject );
 	// RB end
 	
@@ -606,11 +613,11 @@ void idIndexBuffer::Update( const void* data, int updateSize ) const
 	int numBytes = ( updateSize + 15 ) & ~15;
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// RB end
 	
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, bufferObject );
-	glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, GetOffset(), ( GLsizeiptrARB )numBytes, data );
+	glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, GetOffset(), ( GLsizeiptr )numBytes, data );
 	/*
 		void * buffer = MapBuffer( BM_WRITE );
 		CopyBuffer( (byte *)buffer + GetOffset(), (byte *)data, numBytes );
@@ -632,10 +639,11 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType ) const
 	void* buffer = NULL;
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// RB end
 	
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, bufferObject );
+	
 	if( mapType == BM_READ )
 	{
 		//buffer = glMapBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, GL_READ_ONLY_ARB );
@@ -680,7 +688,7 @@ void idIndexBuffer::UnmapBuffer() const
 	assert( IsMapped() );
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// RB end
 	
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, bufferObject );
@@ -807,7 +815,7 @@ void idJointBuffer::FreeBufferObject()
 	}
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	GLintptrARB buffer = reinterpret_cast< GLintptrARB >( apiObject );
+	GLintptr buffer = reinterpret_cast< GLintptr >( apiObject );
 	
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 	glDeleteBuffers( 1, ( const GLuint* )& buffer );
@@ -877,10 +885,10 @@ void idJointBuffer::Update( const float* joints, int numUpdateJoints ) const
 	const int numBytes = numUpdateJoints * 3 * 4 * sizeof( float );
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	glBindBuffer( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptrARB >( apiObject ) );
+	glBindBuffer( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptr >( apiObject ) );
 	// RB end
 	
-	glBufferSubDataARB( GL_UNIFORM_BUFFER, GetOffset(), ( GLsizeiptrARB )numBytes, joints );
+	glBufferSubData( GL_UNIFORM_BUFFER, GetOffset(), ( GLsizeiptr )numBytes, joints );
 }
 
 /*
@@ -899,7 +907,7 @@ float* idJointBuffer::MapBuffer( bufferMapType_t mapType ) const
 	void* buffer = NULL;
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	glBindBuffer( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptrARB >( apiObject ) );
+	glBindBuffer( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptr >( apiObject ) );
 	// RB end
 	
 	numBytes = numBytes;
@@ -931,7 +939,7 @@ void idJointBuffer::UnmapBuffer() const
 	assert( IsMapped() );
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
-	glBindBuffer( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptrARB >( apiObject ) );
+	glBindBuffer( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptr >( apiObject ) );
 	// RB end
 	
 	if( !glUnmapBuffer( GL_UNIFORM_BUFFER ) )
